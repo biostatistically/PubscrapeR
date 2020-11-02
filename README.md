@@ -1,2 +1,2 @@
 # PubscrapeR
-Scrape PubMed (via businessPubMed), compile query results, and export to csv
+Scrape PubMed (using businessPubMed), compile query results, and export to csv.

@@ -23,25 +23,25 @@ scrape2csv(
 )
 }
 \arguments{
-\item{narrow}{String: key search terms in double quotes using AND as the operator between terms 
+\item{narrow}{Character vector of length 1: key search terms in double quotes using AND as the operator between terms 
 all enclosed within parentheses}
 
-\item{broad}{String: key search terms in quotes using OR as the operator between terms
+\item{broad}{Character vector of length 1: key search terms in quotes using OR as the operator between terms
 all enclosed within parentheses}
 
-\item{operator}{String: Defines the boolean operator (AND, OR, NOT) between narrow and broad 
+\item{operator}{Character string: Defines the boolean operator (AND, OR, NOT) between narrow and broad 
 (AND is default)}
 
-\item{journals}{Character vector: journals to query search terms through a loop}
+\item{journals}{Character vector of length j: journals to query search terms through a loop}
 
-\item{start}{String: start date of the search YYYY, or YYYY/MM, or YYYY/MM/DD format}
+\item{start}{Character string: start publication date for the query YYYY, or YYYY/MM, or YYYY/MM/DD format}
 
-\item{end}{Character vector of length 1: end date of the search YYYY, or YYYY/MM, or YYYY/MM/DD format 
+\item{end}{Character string: end publication date for the query YYYY, or YYYY/MM, or YYYY/MM/DD format 
 (default is 3000/12/31)}
 
-\item{title}{String: title of the search,`used as prefix to output}
+\item{title}{Character string: title of the search,`used as prefix to output}
 
-\item{outpath}{String: path for the output}
+\item{outpath}{Character string: path for the output}
 
 \item{newfolder}{If `TRUE`, a new folder is created for the output (default is TRUE)}
 
@@ -52,7 +52,7 @@ all enclosed within parentheses}
 
 \item{alist}{If `TRUE`, a list of authors resulting from the query is exported (default is TRUE)}
 
-\item{plist}{If `TRUE`, a list of articles resulting from the query is exported (default is TRUE)}
+\item{plist}{If `TRUE`, a list of publication titles resulting from the query is exported (default is TRUE)}
 
 \item{jlist}{If `TRUE`, and `journals` is not specified, a list of journals resulting from the query
 is exported (default is FALSE)}

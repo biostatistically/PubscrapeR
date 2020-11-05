@@ -107,7 +107,7 @@ If we go with the defaults of `raw = TRUE`, `report = TRUE`, we will obtain raw 
 * publication list with title, journal, year, as well as first author first name and last name (since default is `plist = TRUE`)
 * a report of query stats (since default is `report = TRUE` when not specified by user)
    
-```{r run01, include=T, eval=T}
+```{r run01, include=T, eval=F}
 n_terms <- '("social media" AND "adolescents")'
 b_terms <- '("mental health" OR " mental illness")'
 my.operator <- "AND" #explicitly being specified eventhough AND is the default
@@ -144,7 +144,7 @@ Since `newfolder = TRUE`, the following csv files are exported to a new folder S
 * author contact information compiled from both journals, then cleaned of duplicates by author first name, last name, and email (since default is `clist = TRUE`)
 * a report of query stats (since default is `report = TRUE`)
 
-```{r run02, include = T, eval = T}
+```{r run02, include = T, eval = F}
 my.custom <- '("adolescents" OR "teens" OR "young adults") AND ("social media" AND "mental health") 
   AND ("sleep" OR "depression") NOT ("apnea")'
 my.journals <- c("Sleep Health", "J Adolesc Health")

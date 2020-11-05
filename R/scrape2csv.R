@@ -4,24 +4,24 @@
 #' If a journal list is defined, the query will be performed iteratively through a loop.
 #' Results are compiled and exported to csv.
 #'
-#' @param narrow String: key search terms in double quotes using AND as the operator between terms 
+#' @param narrow Character vector of length 1: key search terms in double quotes using AND as the operator between terms 
 #'   all enclosed within parentheses
-#' @param broad String: key search terms in quotes using OR as the operator between terms
+#' @param broad Character vector of length 1: key search terms in quotes using OR as the operator between terms
 #'   all enclosed within parentheses
-#' @param operator String: Defines the boolean operator (AND, OR, NOT) between narrow and broad 
+#' @param operator Character string: Defines the boolean operator (AND, OR, NOT) between narrow and broad 
 #'   (AND is default)
-#' @param journals Character vector: journals to query search terms through a loop
-#' @param start String: start date of the search YYYY, or YYYY/MM, or YYYY/MM/DD format
-#' @param end Character vector of length 1: end date of the search YYYY, or YYYY/MM, or YYYY/MM/DD format 
+#' @param journals Character vector of length j: journals to query search terms through a loop
+#' @param start Character string: start publication date for the query YYYY, or YYYY/MM, or YYYY/MM/DD format
+#' @param end Character string: end publication date for the query YYYY, or YYYY/MM, or YYYY/MM/DD format 
 #'   (default is 3000/12/31)
-#' @param title String: title of the search,`used as prefix to output
-#' @param outpath String: path for the output
+#' @param title Character string: title of the search,`used as prefix to output
+#' @param outpath Character string: path for the output
 #' @param newfolder If `TRUE`, a new folder is created for the output (default is TRUE)
 #' @param raw If `TRUE`, raw query results are exported to csv (default is TRUE)
 #' @param clist If `TRUE`, a list of author email contacts cleaned of duplicates is exported
 #'   (default is TRUE)
 #' @param alist If `TRUE`, a list of authors resulting from the query is exported (default is TRUE)
-#' @param plist If `TRUE`, a list of articles resulting from the query is exported (default is TRUE)
+#' @param plist If `TRUE`, a list of publication titles resulting from the query is exported (default is TRUE)
 #' @param jlist If `TRUE`, and `journals` is not specified, a list of journals resulting from the query
 #'   is exported (default is FALSE)
 #' @param report If `TRUE`, a query report is exported to csv (default is TRUE)
@@ -104,7 +104,7 @@ scrape2csv <- function(narrow,
     # Number of unique journals?
     n.journals <- sum(!is.na(unique(my.data$data$journal)))
     
-    # Number of unique articles?
+    # Number of unique publication titles?
     n.articles <- sum(!is.na(unique(my.data$data$title)))
     
     # Number of unique authors?
@@ -152,7 +152,7 @@ scrape2csv <- function(narrow,
     today <- gsub("-", "", Sys.Date())
     rawfilename <- file.path(rawdir, paste0(title, "_raw_", today, ".csv"))
     reportfilename <- file.path(outdir, paste0(title, "_report_", today, ".csv"))
-    articlesfilename <- file.path(outdir, paste0(title, "_articles_", today, ".csv"))
+    articlesfilename <- file.path(outdir, paste0(title, "_publications_", today, ".csv"))
     authorsfilename <- file.path(outdir, paste0(title, "_authors_", today, ".csv"))
     contactsfilename <- file.path(outdir, paste0(title, "_contacts_", today, ".csv"))
     journalsfilename <- file.path(outdir, paste0(title, "_journals_", today, ".csv"))
@@ -167,7 +167,7 @@ scrape2csv <- function(narrow,
         dplyr::select(lastname, firstname, title, journal, year) %>%
         dplyr::distinct(title, .keep_all = TRUE) %>%
         write.csv(file = articlesfilename)
-      cat(paste0("\n", "\033[0;34m", "Articles for ", title, " query has been exported to ", 
+      cat(paste0("\n", "\033[0;34m", "Publication titles for ", title, " query has been exported to ", 
                  articlesfilename, "\033[0m", "\n"))
     }
     if (jlist) {
@@ -298,7 +298,7 @@ scrape2csv <- function(narrow,
                    journals[i], " have been exported to ", rawdir, "\033[0m", "\n"))
       }
       
-      # Number of unique articles?
+      # Number of unique publication titles?
       n.articles <- sum(!is.na(unique(my.data$data$title)))
       
       # Number of unique authors?
@@ -365,10 +365,10 @@ scrape2csv <- function(narrow,
     # combine all articles by journal together; write non-duplicated results to csv file
     if (plist) {
       if (N_success > 0) {
-        articlesfilename <- file.path(outdir, paste0(title, "_articles_", today, ".csv"))
+        articlesfilename <- file.path(outdir, paste0(title, "_publications_", today, ".csv"))
         dplyr::bind_rows(articles_combine) %>%
           write.csv(file = articlesfilename) 
-        cat(paste0("\n", "\033[0;34m", "Articles for ", title, " query in ", N_success, " of ", 
+        cat(paste0("\n", "\033[0;34m", "Publication titles for ", title, " query in ", N_success, " of ", 
                    reps," selected journals have been exported to ", outdir, "\033[0m", "\n"))
       } else {
         cat(paste0("\n", "\033[0;31m", "No results found for ", title, " query within the ", 

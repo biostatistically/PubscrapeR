@@ -45,16 +45,37 @@ library(here)
 
 # Basics
 
-## The arguements
+## The arguments
 
-*  `narrow` : (REQUIRED) key search terms within double quotes using AND as the operator between terms, all enclosed within parentheses. e.g. ("keyword" AND "some keyphrase" AND "another keyphrase") NOTE- for advanced users, this can be used to enter all search terms with any Boolean operator(s)
-*  `broad` : (optional) key search terms within double quotes using OR as the operator between terms, all enclosed within parentheses. e.g. ("keyword1" OR "key phrase1")
-*  `operator` : Boolean operator to be placed between `narrow` and `broad`; if not specified, 'AND' will be used
-*  `journals` : (optional) a list of journals to query for the set of search terms
-*  `start` : (REQUIRED) the earliest date of publication you want to search
-*  `end` : (optional) the latest date of publication you want to search; if not specified, default of 3000/12/31 will be used
-*  `title` : (optional) title of your query which will be used to name folders and output files NOTE- best to keep it short and simple
-*  `outpath` : (optional) directory where you want your output to be placed; if not specified, the working directory will be used
+Here's the structure of the entire function. There are a lot of options to customize your search and output, but only two of the parameters are required for you to define: `narrow` (the search terms) and `start` (the start of the range of dates for PubMed to search).
+```{r eval=F}
+scrape2csv <- function(narrow, 
+                       broad=NULL,
+                       operator=NULL,
+                       journals=NULL, 
+                       start, 
+                       end=NULL, 
+                       title=NULL, 
+                       outpath=NULL, 
+                       newfolder=TRUE, 
+                       raw=TRUE,
+                       clist=TRUE,
+                       alist=FALSE,
+                       plist=FALSE,
+                       jlist=FALSE,
+                       report=TRUE)
+```
+
+More details:
+
+*  `narrow` : ( __REQUIRED__; character vector of length 1) This parameter has a lot of flexibility. One way to use this argument is for key search terms using AND as the operator between terms (therefore the parameter name of `narrow`). Each term must be enclosed in double quotes, and the whole set of terms needs to be enclosed in parentheses. e.g. ("keyword" AND "some keyphrase" AND "another keyphrase") _NOTE- for advanced users, this parameter can be used to enter all desired search terms with any Boolean operator(s)._
+*  `broad` : (optional; character vector of length 1) Again, there is flexibility of how this is defined. In the same vein as above, one way to use this is for key search terms using OR as the operator between terms. e.g. ("keyword1" OR "key phrase1") 
+*  `operator` : (optional; character string) Boolean operator to be placed between `narrow` and `broad`; if not specified, 'AND' will be used
+*  `journals` : (optional; character vector of length j) a list of journals to query for the set of search terms. _Note- When specified, the query will iterate over the list of journals for the set of search terms defined
+*  `start` : ( __REQUIRED__; character string) the earliest publication date you want to search
+*  `end` : (optional) the latest publication date you want to search; if not specified, default of 3000/12/31 will be used
+*  `title` : (optional; character string) title of your query which will be used to name folders and output files NOTE- best to keep it short and simple
+*  `outpath` : (optional; character string) directory where you want your output to be placed; if not specified, the working directory will be used
 *  `newfolder` : If TRUE, a new folder will be created for your output; default is TRUE
 *  `raw` : If TRUE, raw query results are exported to csv; default is TRUE
 *  `clist` : If TRUE, author contact information with emails will be exported to csv; default is TRUE
@@ -64,27 +85,29 @@ library(here)
 *  `report` = If TRUE, a query report will be exported to csv; default is TRUE
 
 
-## Simple example
+## Example
 
-Let's say we want to get a list of journals that have published articles on the effect of social media on mental health in adolescents in 2020. In addition, we want a list of all the articles and their first authors. We can set up our query by:
+Let's say we want to know what journals have published articles on the effect of social media on mental health in adolescents in 2020. We'd also like to know how many articles each journal has published on the subject. In addition, we want a list of publication titles with their first authors. We can set up our query by:
 
 * using ("social media" AND "adolescents") in the `narrow` search term parameter. *(It's narrow since you're meant to put AND between each search term. There is flexibility in this, however. See the next section on customizing the query even futher.)*
 * using ("mental health" OR "mental illness") in the `broad` search term parameter to give a little more leeway to this aspect. *(It's broad since you're meant to put OR between each search term. This parameter is optional.)*
 * using "AND" for the operator bewteen `narrow` and `broad`
-* setting the start date to 2020/01/01
+* setting the start date to 2020/01/01 (or 2020/01)
 
-The resulting query will be **("social media" AND "adolescents") AND ("mental health" OR "mental illness")** for articles published from 2020/01/01 to 3000/12/31 (since `start = "2020/01/01"` and `end = NULL`). The end date is not a typo - 3000/12/31 is the default end of publication date range in PubMed. This can result in queries containing articles that have a published date in the future. So if you want 2020/12/31 to be the end of the range for publication dates, `end = "2020/12/31"` needs to be specified. 
+The resulting query will be __("social media" AND "adolescents") AND ("mental health" OR "mental illness")__ for articles published from 2020/01/01 to 3000/12/31 (since `start = "2020/01/01"` and `end = NULL`). _The end date is not a typo - 3000/12/31 is the default end of publication date range in PubMed. _Note- This can result in queries containing articles that have a published date in the future. So if you want only want articles that have a publication date in 2020, then `end = "2020/12/31"` needs to be specified._ 
 
 If a `title` is defined, output files will be created with the prefix specified for title. In this case `title = "SocialMedia_run01"`. Note: Best to keep titles as simple as possible since they go into file nomenclature.
 
-Since we want a list of journals from the search, we need to make sure to specify `jlist = TRUE`. If we go with the defaults of `raw = TRUE`, `report = TRUE`, we will obtain raw results and a query report as csv files. If `newfolder = FALSE`, the csv files are exported to the working directory. In the example below, we will obtain the following csv files:
+Since we want a list of journals with a count of publications matching search criteria for each journal, we specify `jlist = TRUE`. We also specify `plist = TRUE`, since we want a separate list of publication titles. 
 
-* raw query search results of journals, articles, authors, author affiliation, author email (since `raw = TRUE`)
-* a list of journals with the total number of articles appearing in the search for each journal (since `jlist = TRUE`)
-* author contact information cleaned of duplicates by author first name, last name, and email (since default is `alist = TRUE`)
-* a report of query stats (since default is `report = TRUE`)
+If we go with the defaults of `raw = TRUE`, `report = TRUE`, we will obtain raw results and a query report as csv files. If `newfolder = FALSE`, the csv files are exported to the working directory. In the example below, we will obtain the following csv files:
+
+* raw query search results of journals, publication titles, authors, author affiliation, author email (since `raw = TRUE` when not defined by the user)
+* a list of journals with the total number of publication titles appearing in the search for each journal (since `jlist = TRUE`)
+* publication list with title, journal, year, as well as first author first name and last name (since default is `plist = TRUE`)
+* a report of query stats (since default is `report = TRUE` when not specified by user)
    
-```{r run01, include=T, eval=F}
+```{r run01, include=T, eval=T}
 n_terms <- '("social media" AND "adolescents")'
 b_terms <- '("mental health" OR " mental illness")'
 my.operator <- "AND" #explicitly being specified eventhough AND is the default
@@ -100,6 +123,7 @@ scrape2csv(narrow = n_terms,
            title = my.title, 
            newfolder = FALSE, 
            outpath = "/Users/ivy/example", 
+           plist = TRUE,
            jlist = TRUE)
 ```
 
@@ -116,11 +140,11 @@ If we don't specify `newfolder = FALSE`, a new folder for the output called 'Soc
 
 Since `newfolder = TRUE`, the following csv files are exported to a new folder SocialMedia_run02:
 
-* raw query search results of articles, authors, author affiliation, author email *for each specified journal* (since `raw = TRUE`)
-* author contact information compiled from both journals, then cleaned of duplicates by author first name, last name, and email (default)
-* a report of query stats (since `report = TRUE`)
+* raw query search results of articles, authors, author affiliation, author email __for each specified journal__ (since default is `raw = TRUE`)
+* author contact information compiled from both journals, then cleaned of duplicates by author first name, last name, and email (since default is `clist = TRUE`)
+* a report of query stats (since default is `report = TRUE`)
 
-```{r run02, include = T, eval = F}
+```{r run02, include = T, eval = T}
 my.custom <- '("adolescents" OR "teens" OR "young adults") AND ("social media" AND "mental health") 
   AND ("sleep" OR "depression") NOT ("apnea")'
 my.journals <- c("Sleep Health", "J Adolesc Health")

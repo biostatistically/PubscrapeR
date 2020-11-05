@@ -26,11 +26,11 @@ Query results from all journals (if defined) are compiled, cleaned of duplicates
 
 ## Installing the pubscraper package
 
-The `pubscraper` package can be installed from GitHub via devtools package (`devtools` package is available on CRAN). It requires easyPubMed and businessPubMed (available on GitHub) for performing the queries, and magrittr.
+The `pubscraper` package can be installed from GitHub via devtools package (`devtools` package is available on CRAN). It requires easyPubMed and businessPubMed (available on GitHub) for performing the queries, and dplyr. Tidyverse is suggested.
 
 
 ```{r install, include=T, eval=FALSE}
-# install the package via > devtools::install_github("dami82/businessPubMed")
+# install the package via > devtools::install_github("biostatistically/pubscraper")
 library(devtools)
 install_github("dami82/easyPubMed")
 install_github("dami82/businessPubMed")
@@ -68,7 +68,7 @@ scrape2csv <- function(narrow,
 
 More details:
 
-*  `narrow` : ( __REQUIRED__; character vector of length 1) This parameter has a lot of flexibility. One way to use this argument is for key search terms using AND as the operator between terms (therefore the parameter name of `narrow`). Each term must be enclosed in double quotes, and the whole set of terms needs to be enclosed in parentheses. e.g. ("keyword" AND "some keyphrase" AND "another keyphrase") _NOTE- for advanced users, this parameter can be used to enter all desired search terms with any Boolean operator(s)._
+*  `narrow` : ( __REQUIRED__; character vector of length 1) This parameter has a lot of flexibility. One way to use this argument is for key search terms using AND as the operator between terms (therefore the parameter name of `narrow`). Each term must be enclosed in double quotes, and the whole set of terms needs to be enclosed in parentheses. e.g. ("keyword" AND "some key phrase" AND "another key phrase") _NOTE- for advanced users, this parameter can be used to enter all desired search terms with any Boolean operator(s)._
 *  `broad` : (optional; character vector of length 1) Again, there is flexibility of how this is defined. In the same vein as above, one way to use this is for key search terms using OR as the operator between terms. e.g. ("keyword1" OR "key phrase1") 
 *  `operator` : (optional; character string) Boolean operator to be placed between `narrow` and `broad`; if not specified, 'AND' will be used
 *  `journals` : (optional; character vector of length j) a list of journals to query for the set of search terms. _Note- When specified, the query will iterate over the list of journals for the set of search terms defined
@@ -89,9 +89,9 @@ More details:
 
 Let's say we want to know what journals have published articles on the effect of social media on mental health in adolescents in 2020. We'd also like to know how many articles each journal has published on the subject. In addition, we want a list of publication titles with their first authors. We can set up our query by:
 
-* using ("social media" AND "adolescents") in the `narrow` search term parameter. *(It's narrow since you're meant to put AND between each search term. There is flexibility in this, however. See the next section on customizing the query even futher.)*
+* using ("social media" AND "adolescents") in the `narrow` search term parameter. *(It's narrow since you're meant to put AND between each search term. There is flexibility in this, however. See the next section on customizing the query even further.)*
 * using ("mental health" OR "mental illness") in the `broad` search term parameter to give a little more leeway to this aspect. *(It's broad since you're meant to put OR between each search term. This parameter is optional.)*
-* using "AND" for the operator bewteen `narrow` and `broad`
+* using "AND" for the operator between `narrow` and `broad`
 * setting the start date to 2020/01/01 (or 2020/01)
 
 The resulting query will be __("social media" AND "adolescents") AND ("mental health" OR "mental illness")__ for articles published from 2020/01/01 to 3000/12/31 (since `start = "2020/01/01"` and `end = NULL`). _The end date is not a typo - 3000/12/31 is the default end of publication date range in PubMed. _Note- This can result in queries containing articles that have a published date in the future. So if you want only want articles that have a publication date in 2020, then `end = "2020/12/31"` needs to be specified._ 
@@ -107,7 +107,7 @@ If we go with the defaults of `raw = TRUE`, `report = TRUE`, we will obtain raw 
 * publication list with title, journal, year, as well as first author first name and last name (since default is `plist = TRUE`)
 * a report of query stats (since default is `report = TRUE` when not specified by user)
    
-```{r run01, include=T, eval=F}
+```{r run01, include=T, eval=T}
 n_terms <- '("social media" AND "adolescents")'
 b_terms <- '("mental health" OR " mental illness")'
 my.operator <- "AND" #explicitly being specified eventhough AND is the default
@@ -144,9 +144,8 @@ Since `newfolder = TRUE`, the following csv files are exported to a new folder S
 * author contact information compiled from both journals, then cleaned of duplicates by author first name, last name, and email (since default is `clist = TRUE`)
 * a report of query stats (since default is `report = TRUE`)
 
-```{r run02, include = T, eval = F}
-my.custom <- '("adolescents" OR "teens" OR "young adults") AND ("social media" AND "mental health") 
-  AND ("sleep" OR "depression") NOT ("apnea")'
+```{r run02, include=T, eval=T}
+my.custom <- '("adolescents" OR "teens" OR "young adults") AND ("social media" AND "mental health") AND ("sleep" OR "depression") NOT ("apnea")'
 my.journals <- c("Sleep Health", "J Adolesc Health")
 my.start <- "2011"
 my.end <- "2020"

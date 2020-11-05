@@ -5,8 +5,8 @@ Version: 0.1.0
 Author: Ivy Chen
 Maintainer: Ivy Chen <biostatistically@gmail.com>
 Description: This package automates PubMed queries through businessPubMed. Allows for looping queries of search terms through a list of specified journals, specifically targeting author information. This package also helps to compile search results and export them to csv.
-Depends: R(>= 3.0), XML, magrittr, easyPubMed, businessPubMed
-Imports: here, dplyr, tidyr
+Depends: R(>= 3.0), XML, dplyr, easyPubMed, businessPubMed
+Imports: here, tidyr
 License: GPL-2
 Encoding: UTF-8
 LazyData: true

@@ -1,0 +1,136 @@
+---
+title: "pubscraper_examples_and_notes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{pubscraper_examples_and_notes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(pubscraper)
+```
+
+# Introduction
+
+The `pubscraper` package is essentially a wrapper for the `businessPubMed::extract_pubMed_data` function (by Damiano Fantini) which extracts author information from PubMed query results for a user-defined set of search terms. The `scrape2csv` function was written for the purpose of automating the process of querying the same set of search terms over a defined list of journals to extract author contact information and produce a list with unduplicated contacts. However, the `scrape2csv` function can be used for PubMed queries over all journals and can be used to produce csv files other than author contact information. 
+
+Query results from all journals (if defined) are compiled, cleaned of duplicates in regards to author contact information (name and email), and then exported to csv. As a default, raw query results for each journal are also exported to csv and a report of several different types of counts of unique observations (journal, article, author, email, and contact information) are provided and exported to csv.  
+
+## Installing the pubscraper package
+
+The `pubscraper` package can be installed from GitHub via devtools package (`devtools` package is available on CRAN). It requires easyPubMed and businessPubMed (available on GitHub) for performing the queries, and magrittr.
+
+
+```{r install, include=T, eval=FALSE}
+# install the package via > devtools::install_github("dami82/businessPubMed")
+library(devtools)
+install_github("dami82/easyPubMed")
+install_github("dami82/businessPubMed")
+library(easyPubMed)
+library(businessPubMed)
+# install tidyverse for access to dplyr, tidyr, and magrittr - code uses functions from these packages
+# install.packages("tidyverse")
+# install.pacakges("here")
+library(tidyverse) 
+library(here)
+```
+
+# Basics
+
+## The arguements
+
+*  `narrow` : (REQUIRED) key search terms within double quotes using AND as the operator between terms, all enclosed within parentheses. e.g. ("keyword" AND "some keyphrase" AND "another keyphrase") NOTE- for advanced users, this can be used to enter all search terms with any Boolean operator(s)
+*  `broad` : (optional) key search terms within double quotes using OR as the operator between terms, all enclosed within parentheses. e.g. ("keyword1" OR "key phrase1")
+*  `operator` : Boolean operator to be placed between `narrow` and `broad`; if not specified, 'AND' will be used
+*  `journals` : (optional) a list of journals to query for the set of search terms
+*  `start` : (REQUIRED) the earliest date of publication you want to search
+*  `end` : (optional) the latest date of publication you want to search; if not specified, default of 3000/12/31 will be used
+*  `title` : (optional) title of your query which will be used to name folders and output files NOTE- best to keep it short and simple
+*  `outpath` : (optional) directory where you want your output to be placed; if not specified, the working directory will be used
+*  `newfolder` : If TRUE, a new folder will be created for your output; default is TRUE
+*  `raw` : If TRUE, raw query results are exported to csv; default is TRUE
+*  `clist` : If TRUE, author contact information with emails will be exported to csv; default is TRUE
+*  `alist` : If TRUE, a list of authors with a count of articles and a count of journals for each author is exported to csv; default is FALSE
+*  `plist` : If TRUE, a list of articles with journal and first author name is exported to csv; default is FALSE
+*  `jlist` = If TRUE, a list of journals with a count of number of articles is exported to csv; default is FALSE
+*  `report` = If TRUE, a query report will be exported to csv; default is TRUE
+
+
+## Simple example
+
+Let's say we want to get a list of journals that have published articles on the effect of social media on mental health in adolescents in 2020. In addition, we want a list of all the articles and their first authors. We can set up our query by:
+
+* using ("social media" AND "adolescents") in the `narrow` search term parameter. *(It's narrow since you're meant to put AND between each search term. There is flexibility in this, however. See the next section on customizing the query even futher.)*
+* using ("mental health" OR "mental illness") in the `broad` search term parameter to give a little more leeway to this aspect. *(It's broad since you're meant to put OR between each search term. This parameter is optional.)*
+* using "AND" for the operator bewteen `narrow` and `broad`
+* setting the start date to 2020/01/01
+
+The resulting query will be **("social media" AND "adolescents") AND ("mental health" OR "mental illness")** for articles published from 2020/01/01 to 3000/12/31 (since `start = "2020/01/01"` and `end = NULL`). The end date is not a typo - 3000/12/31 is the default end of publication date range in PubMed. This can result in queries containing articles that have a published date in the future. So if you want 2020/12/31 to be the end of the range for publication dates, `end = "2020/12/31"` needs to be specified. 
+
+If a `title` is defined, output files will be created with the prefix specified for title. In this case `title = "SocialMedia_run01"`. Note: Best to keep titles as simple as possible since they go into file nomenclature.
+
+Since we want a list of journals from the search, we need to make sure to specify `jlist = TRUE`. If we go with the defaults of `raw = TRUE`, `report = TRUE`, we will obtain raw results and a query report as csv files. If `newfolder = FALSE`, the csv files are exported to the working directory. In the example below, we will obtain the following csv files:
+
+* raw query search results of journals, articles, authors, author affiliation, author email (since `raw = TRUE`)
+* a list of journals with the total number of articles appearing in the search for each journal (since `jlist = TRUE`)
+* author contact information cleaned of duplicates by author first name, last name, and email (since default is `alist = TRUE`)
+* a report of query stats (since default is `report = TRUE`)
+   
+```{r run01, include=T, eval=F}
+n_terms <- '("social media" AND "adolescents")'
+b_terms <- '("mental health" OR " mental illness")'
+my.operator <- "AND" #explicitly being specified eventhough AND is the default
+my.start <- "2020/01/01"
+my.end <- "2020/12/31"
+my.title <- "SocialMedia_run01"  
+
+scrape2csv(narrow = n_terms, 
+           broad = b_terms, 
+           operator = my.operator, 
+           start = my.start, 
+           end = my.end, 
+           title = my.title, 
+           newfolder = FALSE, 
+           outpath = "/Users/ivy/example", 
+           jlist = TRUE)
+```
+
+
+## Customizing
+
+You can also create a much more customized query. For example, we want to search: **("adolescents" OR "teens" OR "young adults") AND ("social media" AND "mental health") AND ("sleep" OR "depression") NOT ("apnea")** - see *https://pubmed.ncbi.nlm.nih.gov/advanced/*
+
+We would assign this customized query to `narrow` and leave `broad` blank.
+
+In this example we will query two journals, "Sleep Health" and "J Adolesc Health" for these search terms from 2011 through 2020. The query will loop through the list of journals, in the case just 2, iteratively.  
+
+If we don't specify `newfolder = FALSE`, a new folder for the output called 'SocialMedia_run02' will be created (this comes from the title you specify - if `title = NULL`, the new folder will be called 'Untitled'). It's best practice to title your runs differently since files and folders can be overwritten if they have the same name. 
+
+Since `newfolder = TRUE`, the following csv files are exported to a new folder SocialMedia_run02:
+
+* raw query search results of articles, authors, author affiliation, author email *for each specified journal* (since `raw = TRUE`)
+* author contact information compiled from both journals, then cleaned of duplicates by author first name, last name, and email (default)
+* a report of query stats (since `report = TRUE`)
+
+```{r run02, include = T, eval = F}
+my.custom <- '("adolescents" OR "teens" OR "young adults") AND ("social media" AND "mental health") 
+  AND ("sleep" OR "depression") NOT ("apnea")'
+my.journals <- c("Sleep Health", "J Adolesc Health")
+my.start <- "2011"
+my.end <- "2020"
+my.title <- "SocialMedia_run02"
+scrape2csv(narrow = my.custom, 
+           journals = my.journals, 
+           start = my.start, 
+           end = my.end, 
+           title = my.title, 
+           outpath = "/Users/ivy/example/")
+```

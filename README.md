@@ -1,4 +1,4 @@
-# PubscrapeR
+# PubscrapeR v1.0
 
 ## Scrape PubMed, compile query results, and export to csv. 
 Option to output raw query results, as well as separate files for lists of journals, articles, authors, and/or author contacts with affiliation and email as csv file(s).

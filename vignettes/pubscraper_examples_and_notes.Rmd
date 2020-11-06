@@ -14,13 +14,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(pubscraper)
-```
 
 # Introduction
 
-The `pubscraper` package is essentially a wrapper for the `businessPubMed::extract_pubMed_data` function (by Damiano Fantini) which extracts author information from PubMed query results for a user-defined set of search terms. The `scrape2csv` function was written for the purpose of automating the process of querying the same set of search terms over a defined list of journals to extract author contact information and produce a list with unduplicated contacts. However, the `scrape2csv` function can be used for PubMed queries over all journals and can be used to produce csv files other than author contact information. 
+The `pubscraper` package is a helper and a wrapper for `businessPubMed` which extracts author information from PubMed query results for a user-defined set of search terms. The `scrape2csv` function was written for the purpose of automating the process of querying the same set of search terms over a defined list of journals to extract author contact information and produce a list with unduplicated contacts. However, the `scrape2csv` function can be used for PubMed queries over all journals and can be used to produce csv files other than author contact information. 
 
 Query results from all journals (if defined) are compiled, cleaned of duplicates in regards to author contact information (name and email), and then exported to csv. As a default, raw query results for each journal are also exported to csv and a report of several different types of counts of unique observations (journal, article, author, email, and contact information) are provided and exported to csv.  
 
@@ -29,18 +26,22 @@ Query results from all journals (if defined) are compiled, cleaned of duplicates
 The `pubscraper` package can be installed from GitHub via devtools package (`devtools` package is available on CRAN). It requires easyPubMed and businessPubMed (available on GitHub) for performing the queries, and dplyr. Tidyverse is suggested.
 
 
-```{r install, include=T, eval=FALSE}
-# install the package via > devtools::install_github("biostatistically/pubscraper")
-library(devtools)
-install_github("dami82/easyPubMed")
-install_github("dami82/businessPubMed")
+```{r install, include=T, eval=F}
+## tidyverse is suggested since functions from dplyr and tidyr are used
+# install.packages("tidyverse") 
+# install.pacakges("here")
+# install.packages("devtools")
+devtools::install_github("dami82/easyPubMed")
+devtools::install_github("dami82/businessPubMed")
+devtools::install_github("biostatistically/pubscraper")
+```
+
+```{r setup, include=T, eval=T}
+library(tidyverse)
 library(easyPubMed)
 library(businessPubMed)
-# install tidyverse for access to dplyr, tidyr, and magrittr - code uses functions from these packages
-# install.packages("tidyverse")
-# install.pacakges("here")
-library(tidyverse) 
 library(here)
+library(pubscraper)
 ```
 
 # Basics

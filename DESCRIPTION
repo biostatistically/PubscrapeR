@@ -1,7 +1,7 @@
 Package: pubscraper
 Type: Package
 Title: Scrape PubMed, Compile, and Export to csv
-Version: 0.1.0
+Version: 0.9.0
 Author: Ivy Chen
 Maintainer: Ivy Chen <biostatistically@gmail.com>
 Description: This package automates PubMed queries through businessPubMed. Allows for looping queries of search terms through a list of specified journals, specifically targeting author information. This package also helps to compile search results and export them to csv.
